@@ -85,6 +85,7 @@ class TugasController extends Controller
             'matkul' => 'required|string|max:255',
             'nama_tugas' => 'required|string|max:255',
             'deadline' => 'required|date',
+            'deadline_time' => 'nullable|date_format:H:i',
             'kesulitan' => 'required|in:Mudah,Sedang,Sulit',
             'link' => 'nullable|url',
             'persentase' => 'required|integer|min:0|max:100',
@@ -94,10 +95,12 @@ class TugasController extends Controller
             'matkul' => $validated['matkul'],
             'nama_tugas' => $validated['nama_tugas'],
             'deadline' => $validated['deadline'],
+            'deadline_time' => $validated['deadline_time'] ?? '23:59',
             'kesulitan' => $validated['kesulitan'],
             'link' => $validated['link'] ?? '',
             'persentase' => $validated['persentase'],
             'user_id' => session('user_id'),
+            'reminder_h1_sent' => false,
             'created_at' => now()->toDateTimeString(),
             'updated_at' => now()->toDateTimeString(),
         ];
@@ -156,6 +159,7 @@ class TugasController extends Controller
                 'matkul' => 'required|string|max:255',
                 'nama_tugas' => 'required|string|max:255',
                 'deadline' => 'required|date',
+                'deadline_time' => 'nullable|date_format:H:i',
                 'kesulitan' => 'required|in:Mudah,Sedang,Sulit',
                 'link' => 'nullable|url',
                 'persentase' => 'required|integer|min:0|max:100',
@@ -165,6 +169,7 @@ class TugasController extends Controller
                 'matkul' => $validated['matkul'],
                 'nama_tugas' => $validated['nama_tugas'],
                 'deadline' => $validated['deadline'],
+                'deadline_time' => $validated['deadline_time'] ?? '23:59',
                 'kesulitan' => $validated['kesulitan'],
                 'link' => $validated['link'] ?? '',
                 'persentase' => $validated['persentase'],
@@ -210,5 +215,68 @@ class TugasController extends Controller
             'success' => true,
             'quote' => $quote
         ]);
+    }
+
+    public function seedTestReminder(Request $request)
+    {
+        $userId = session('user_id');
+        if (!$userId) {
+            return response()->json(['success' => false, 'message' => 'Belum login'], 401);
+        }
+
+        // Ambil token dari query string, profil, atau session
+        $token = $request->query('token') ?? null;
+        if (!$token) {
+            $profile = $this->firebase->getUserProfile($userId);
+            $token = $profile['fcm_token'] ?? session('fcm_token');
+        }
+
+        // Jika ada token, sinkronkan ke profil
+        if ($token) {
+            try {
+                $this->firebase->updateUserProfile($userId, [
+                    'fcm_token' => $token,
+                    'updated_at' => now()->toDateTimeString(),
+                ]);
+            } catch (\Throwable $e) {}
+        }
+
+        // Buat tugas test deadline +1 jam
+        $now = now()->second(0);
+        $deadlineAt = (clone $now)->addHour();
+        $data = [
+            'matkul' => 'Tes Matkul',
+            'nama_tugas' => 'Tes Reminder H-1 Jam',
+            'deadline' => $deadlineAt->format('Y-m-d'),
+            'deadline_time' => $deadlineAt->format('H:i'),
+            'kesulitan' => 'Mudah',
+            'link' => '',
+            'persentase' => 0,
+            'user_id' => $userId,
+            'reminder_h1_sent' => false,
+            'created_at' => $now->toDateTimeString(),
+            'updated_at' => $now->toDateTimeString(),
+        ];
+
+        try {
+            $id = $this->firebase->saveTugas($data);
+            $message = 'Tugas test dibuat (deadline: '.$deadlineAt->format('Y-m-d H:i').' WIB). ';
+            if ($token) {
+                $message .= 'FCM token tersimpan. Jalankan: php artisan reminders:send untuk mengirim notifikasi H-1 jam.';
+            } else {
+                $message .= 'Tidak ada FCM token. Tambahkan ?token=YOUR_FCM_TOKEN di URL atau simpan token via /save-fcm-token.';
+            }
+
+            return response()->json([
+                'success' => true,
+                'tugas_id' => $id,
+                'user_id' => $userId,
+                'deadline' => $deadlineAt->toDateTimeString(),
+                'has_token' => !empty($token),
+                'message' => $message,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => 'Gagal membuat tugas test: '.$e->getMessage()], 500);
+        }
     }
 }

@@ -7,6 +7,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Progress Tugas')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    @auth
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
+    <script src="{{ asset('js/firebase-init.js') }}" defer></script>
+    @endauth
 </head>
 
 <body class="bg-gray-50">
@@ -36,7 +43,7 @@
 
                 <!-- Footer -->
 
-                
+
             </div>
         </div>
     @endauth

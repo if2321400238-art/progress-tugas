@@ -107,9 +107,42 @@ class AuthController extends Controller
         $request->validate([
             'token' => 'required|string',
         ]);
-
         session(['fcm_token' => $request->token]);
 
+        // Persist token ke Firebase agar bisa dipakai untuk reminder terjadwal
+        try {
+            $userId = session('user_id');
+            if ($userId) {
+                $this->firebase->updateUserProfile($userId, [
+                    'fcm_token' => $request->token,
+                    'updated_at' => now()->toDateTimeString(),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // Abaikan error, tetap balikan success agar UX lancar
+        }
+
         return response()->json(['success' => true]);
+    }
+
+    public function me()
+    {
+        $userId = session('user_id');
+        $profile = [];
+        if ($userId) {
+            try {
+                $profile = $this->firebase->getUserProfile($userId);
+            } catch (\Throwable $e) {
+                $profile = [];
+            }
+        }
+
+        return response()->json([
+            'user_id' => $userId,
+            'email' => session('email'),
+            'name' => session('name'),
+            'session_fcm_token' => session('fcm_token'),
+            'profile_fcm_token' => $profile['fcm_token'] ?? null,
+        ]);
     }
 }

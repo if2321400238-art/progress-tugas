@@ -87,21 +87,35 @@
 
             <!-- Deadline & Kesulitan Row -->
             <div class="grid md:grid-cols-2 gap-6">
-                <!-- Deadline -->
+                <!-- Deadline Date & Time -->
                 <div class="group">
-                    <label for="deadline" class="block text-sm font-semibold text-gray-700 mb-2">Deadline <span class="text-red-500">*</span></label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-gray-400 group-focus-within:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Deadline <span class="text-red-500">*</span></label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400 group-focus-within:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <input type="date"
+                                   id="deadline"
+                                   name="deadline"
+                                   value="{{ old('deadline', $tugas['deadline']) }}"
+                                   class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                                   required>
                         </div>
-                        <input type="date"
-                               id="deadline"
-                               name="deadline"
-                               value="{{ old('deadline', $tugas['deadline']) }}"
-                               class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-                               required>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400 group-focus-within:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <input type="time"
+                                   id="deadline_time"
+                                   name="deadline_time"
+                                   value="{{ old('deadline_time', $tugas['deadline_time'] ?? '23:59') }}"
+                                   class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
+                        </div>
                     </div>
                     @error('deadline')
                         <p class="text-red-500 text-sm mt-1 flex items-center gap-1 animate-shake">
@@ -110,6 +124,9 @@
                             </svg>
                             {{ $message }}
                         </p>
+                    @enderror
+                    @error('deadline_time')
+                        <p class="text-red-500 text-sm mt-1 flex items-center gap-1 animate-shake">{{ $message }}</p>
                     @enderror
                 </div>
 

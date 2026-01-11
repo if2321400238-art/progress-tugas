@@ -2,14 +2,16 @@
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
 
-// Firebase configuration - GANTI DENGAN CONFIG ANDA
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBRn_tLO0tG-meqbMsq7FhfsVKzOoYTtmE",
+  authDomain: "tugas-22b74.firebaseapp.com",
+  databaseURL: "https://tugas-22b74-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "tugas-22b74",
+  storageBucket: "tugas-22b74.firebasestorage.app",
+  messagingSenderId: "1063367029736",
+  appId: "1:1063367029736:web:e66adce6ecef7019f42a5d",
+  measurementId: "G-HGGKRX7495"
 };
 
 // Initialize Firebase
